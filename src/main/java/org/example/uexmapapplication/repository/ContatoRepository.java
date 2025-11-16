@@ -7,12 +7,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 
-public interface ContatoRepository {
+@Repository
+public interface ContatoRepository extends JpaRepository<Contato, Long>{
 
     Page<Contato> findByUsuario(Usuario usuario, Pageable pageable);
 
     Page<Contato> findByUsuarioAndNomeContainingIgnoreCase(Usuario usuario, String nome, Pageable pageable);
 
     Page<Contato> findByUsuarioAndCpfContaining(Usuario usuario, String cpf, Pageable pageable);
+
+    Optional<Contato> findByIdAndUsuario(Long id, Usuario usuario);
 }
