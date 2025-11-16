@@ -23,6 +23,8 @@ Esta é uma API RESTful completa para o desafio de Desenvolvedor Java Pleno. O s
 
 A aplicação foi construída com foco em **boas práticas**, **arquitetura limpa** e um ambiente **100% containerizado** com Docker Compose.
 
+![Diagrama de Arquitetura](./src/main/docs/plantUml.png)
+
 ### Funcionalidades Principais
 
 * ✅ **Autenticação e Autorização:** Sistema completo de Registro, Login e proteção de endpoints usando **Spring Security** e **JWT (JSON Web Tokens)**.
