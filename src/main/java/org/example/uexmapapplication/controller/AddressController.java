@@ -1,9 +1,11 @@
 package org.example.uexmapapplication.controller;
 
+import jakarta.validation.constraints.NotBlank;
 import org.example.uexmapapplication.dto.response.ViaCepResponseDTO;
 import org.example.uexmapapplication.service.ViaCepService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +17,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/address") // Protegido pela Fase 2 (SecurityConfig)
 @SecurityRequirement(name = "bearerAuth")
+@Validated
 public class AddressController {
 
     @Autowired
@@ -43,9 +46,28 @@ public class AddressController {
     @ApiResponse(responseCode = "200", description = "Lista de endereços encontrada (pode estar vazia)")
     @GetMapping("/search")
     public ResponseEntity<List<ViaCepResponseDTO>> searchByAddress(
-            @RequestParam String uf,
-            @RequestParam String cidade,
-            @RequestParam String logradouro) {
-        return ResponseEntity.ok(viaCepService.findByAddress(uf, cidade, logradouro));
+            @RequestParam @NotBlank(message = "O parâmetro 'uf' não pode ser vazio") String uf,
+            @RequestParam @NotBlank(message = "O parâmetro 'cidade' não pode ser vazio") String cidade,
+            @RequestParam @NotBlank(message = "O parâmetro 'logradouro' não pode ser vazio") String logradouro) {
+        try {
+            System.out.println("=== BUSCA VIA CEP INICIADA ===");
+            System.out.println("Parâmetros recebidos:");
+            System.out.println("UF: '" + uf + "'");
+            System.out.println("Cidade: '" + cidade + "'");
+            System.out.println("Logradouro: '" + logradouro + "'");
+
+            List<ViaCepResponseDTO> results = viaCepService.findByAddress(uf, cidade, logradouro);
+
+            System.out.println("=== BUSCA VIA CEP CONCLUÍDA ===");
+            System.out.println("Total de resultados: " + results.size());
+
+            return ResponseEntity.ok(results);
+
+        } catch (Exception e) {
+            System.err.println("=== ERRO NO CONTROLLER ===");
+            System.err.println("Erro: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.ok(List.of());
+        }
     }
 }

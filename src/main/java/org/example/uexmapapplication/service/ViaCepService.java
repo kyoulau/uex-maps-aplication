@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Service
@@ -23,10 +26,13 @@ public class ViaCepService {
      * Busca um endereço único pelo CEP.
      */
     public ViaCepResponseDTO findByCep(String cep) {
+        String cleanCep = cleanCep(cep);
         String url = UriComponentsBuilder.fromHttpUrl(VIACEP_URL)
-                .pathSegment(cep, "json")
+                .pathSegment(cleanCep, "json")
+                .encode(StandardCharsets.UTF_8)
                 .toUriString();
 
+        System.out.println("Busca por CEP - URL: " + url);
         return restTemplate.getForObject(url, ViaCepResponseDTO.class);
     }
 
@@ -35,17 +41,45 @@ public class ViaCepService {
      * (Conforme requisito original do PDF )
      */
     public List<ViaCepResponseDTO> findByAddress(String uf, String cidade, String logradouro) {
-        String url = UriComponentsBuilder.fromHttpUrl(VIACEP_URL)
-                .pathSegment(uf, cidade, logradouro, "json")
-                .toUriString();
+        try {
+            String normalizedUf = normalizeParameter(uf).toUpperCase();
+            String normalizedCidade = normalizeParameter(cidade);
+            String normalizedLogradouro = normalizeParameter(logradouro);
 
-        // Como o ViaCep retorna um array JSON, precisamos usar o ParameterizedTypeReference
-        ResponseEntity<List<ViaCepResponseDTO>> response = restTemplate.exchange(
-                url,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<ViaCepResponseDTO>>() {}
-        );
-        return response.getBody();
+            URI uri = UriComponentsBuilder.fromHttpUrl(VIACEP_URL)
+                    .pathSegment(normalizedUf, normalizedCidade, normalizedLogradouro)
+                    .path("json")
+                    .encode(StandardCharsets.UTF_8)
+                    .build()
+                    .toUri();
+
+            System.out.println("Busca por Endereço - URL: " + uri.toString());
+
+            ResponseEntity<List<ViaCepResponseDTO>> response = restTemplate.exchange(
+                    uri,
+                    HttpMethod.GET,
+                    null,
+                    new ParameterizedTypeReference<List<ViaCepResponseDTO>>() {}
+            );
+
+            List<ViaCepResponseDTO> result = response.getBody();
+            System.out.println("Resultados encontrados: " + (result != null ? result.size() : 0));
+            return result != null ? result : List.of();
+
+        } catch (Exception e) {
+            System.err.println("Erro ao buscar endereço no ViaCEP: " + e.getMessage());
+            e.printStackTrace();
+            return List.of();
+        }
+    }
+
+    private String normalizeParameter(String param) {
+        if (param == null) return "";
+        return param.trim().replaceAll("\\s+", " ");
+    }
+
+    private String cleanCep(String cep) {
+        if (cep == null) return "";
+        return cep.replaceAll("\\D", "");
     }
 }
