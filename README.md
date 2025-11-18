@@ -55,7 +55,7 @@ A aplicação foi construída com foco em **boas práticas**, **arquitetura limp
 
 ## 🏛️ Arquitetura do Projeto
 
-O projeto segue princípios de **Arquitetura Limpa** e **Domain-Driven Design (DDD)**, separando o código em camadas claras de responsabilidade.
+O projeto segue princípios de **Arquitetura Limpa** e **Onion Architecture**, separando o código em camadas claras de responsabilidade.
 
 ```text
 src/main/java/org/example/uexmapapplication/
@@ -137,9 +137,7 @@ A aplicação subirá com hot-reload (graças ao DevTools) e se conectará ao ba
 
 ### 🧪 Testes
 
-A aplicação inclui um teste de integração (ContatoControllerIntegrationTest.java) que valida a regra de negócio mais crítica: a proibição de CPF duplicado por usuário.
-
-Para rodar os testes, simplesmente clique com o botão direito no arquivo/classe de teste na sua IDE e selecione "Run".
+A aplicação inclui um teste de integração (org.example.uexmapapplication.ContatoControllerIntegrationTest.java) que valida a regra de negócio mais crítica: a proibição de CPF duplicado por usuário.
 
 
 ### 🌐 Documentação e Guia de Endpoints
